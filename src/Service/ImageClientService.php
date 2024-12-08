@@ -19,6 +19,7 @@ class ImageClientService
 
     public function fetch(string $path, array $params = [], string $method='GET'): iterable
     {
+        assert(in_array($method, ['GET', 'POST']));
         $request = $this->httpClient->request($method, $this->apiEndpoint . $path, [
                 'query' => $params,
                 'proxy' => $this->proxyUrl,
@@ -30,6 +31,20 @@ class ImageClientService
         }
         $data = json_decode($request->getContent(), true);
         dd($data);
+    }
+
+    static public function calculateCode(string $url): string
+    {
+        return hash('xxh3', $url);
+    }
+
+    static public function calculatePath(?string $xxh3=null, ?string $url=null): string
+    {
+        $xxh3 ??= self::calculateCode($url);
+        return sprintf("%s/%s/%s",
+            substr($xxh3, 0, 2),
+            substr($xxh3, 2, 2),
+            substr($xxh3, 4, -1));
     }
 
     // /api/public/projectservice/all/projects/ids?api_key=YOUR_API_KEY
@@ -57,13 +72,13 @@ class ImageClientService
         return $this->fetch($path, $params, 'download');
     }
 
-    // projectservice/all/projects
     // https://api.imageClient.org/api/public/projectservice/all/projects/
     // https://www.imageClient.org/api/methods/get-all-projects/
-    public function download(array $urls = [], array $filters, ?string $callbackUrl=null)
+    public function dispatchProcess(array $urls = [], array $filters=[], ?string $callbackUrl=null)
     {
         $params = get_defined_vars();
-        $path = 'projectservice/all/projects/';
+        $path = '/dispatch_process/';
+        // make the API call
         return $this->fetch($path, $params);
     }
 
