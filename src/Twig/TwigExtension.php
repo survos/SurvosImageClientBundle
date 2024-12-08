@@ -17,7 +17,7 @@ class TwigExtension extends AbstractExtension
         return [
             // If your filter generates SAFE HTML, add ['is_safe' => ['html']]
             // Reference: https://twig.symfony.com/doc/3.x/advanced.html#automatic-escaping
-            new TwigFilter('filter_name', fn (string $s) => '@todo: filter '.$s),
+            new TwigFilter('survos_image_filter', fn (string $s, string $filter) => sprintf("%s/media/cache/%s/%s", $this->config['api_endpoint'], $filter, $s)),
         ];
     }
 
